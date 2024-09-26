@@ -18,3 +18,4 @@ dependencies:
       - torchaudio==2.2.2
       - torchtext==0.17.2
       - torchdata==0.7.1 # installed for torchtext
+      - tensorboard
