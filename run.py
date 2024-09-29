@@ -2,7 +2,7 @@ import argparse
 import os
 
 import torch
-from exp.exp_forecasting import Exp_Main
+from exp.exp_forecasting import Exp_Long_Term_Forecast
 import random
 import numpy as np
 from utils.str2bool import str2bool
@@ -20,6 +20,8 @@ if __name__ == '__main__':
     parser.add_argument('--model_id', type=str, default='ETTh1', help='model id')
     parser.add_argument('--model', type=str,  default='ModernTCN',
                         help='model name, options: [ModernTCN]')
+    parser.add_argument('--log_dir', type=str, default='./logs', help='logs directory')
+    parser.add_argument('--log_name', type=str, default='result.txt', help='log file name')
 
     # data loader
     parser.add_argument('--data', type=str, default='ETTm1', help='dataset type')
@@ -72,8 +74,6 @@ if __name__ == '__main__':
     parser.add_argument('--individual', type=int, default=0, help='individual head; True 1 False 0')
 
     # Formers
-    parser.add_argument('--embed_type', type=int, default=0,
-                        help='0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
     parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
     parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
     parser.add_argument('--c_out', type=int, default=7, help='output size')
@@ -92,6 +92,8 @@ if __name__ == '__main__':
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
     parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
+    parser.add_argument('--class_strategy', type=str, default='projection', help='projection/average/cls_token')
+    parser.add_argument('--use_norm', type=int, default=True, help='use norm and denorm')
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -132,7 +134,7 @@ if __name__ == '__main__':
     print('Args in experiment:')
     print(args)
 
-    Exp = Exp_Main
+    Exp = Exp_Long_Term_Forecast
 
     if args.is_training:
         for ii in range(args.itr):

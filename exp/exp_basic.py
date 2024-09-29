@@ -1,13 +1,25 @@
 import os
 import torch
-from models import ModernTCN
+from models import (ModernTCN, Flashformer, iFlashformer, Flowformer,
+                    iFlowformer, Informer, iInformer, Reformer, iReformer,
+                    Transformer, iTransformer)
 
 
 class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
         self.model_dict = {
-            'ModernTCN': ModernTCN
+            'ModernTCN': ModernTCN,
+            'Flashformer': Flashformer,
+            'iFlashformer': iFlashformer,
+            'Flowformer ': Flowformer,
+            'iFlowformer': iFlowformer,
+            'Informer': Informer,
+            'iInformer': iInformer,
+            'Reformer': Reformer,
+            'iReformer': iReformer,
+            'Transformer': Transformer,
+            'iTransformer': iTransformer
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)

@@ -395,7 +395,7 @@ class Model(nn.Module):
                  nvars=self.nvars, small_kernel_merged=self.small_kernel_merged, backbone_dropout=self.drop_backbone, head_dropout=self.drop_head, use_multi_scale=self.use_multi_scale, revin=self.revin, affine=self.affine,
                  subtract_last=self.subtract_last, freq=self.freq, seq_len=self.seq_len, c_in=self.c_in, individual=self.individual, target_window=self.target_window)
 
-    def forward(self, x, te=None):
+    def forward(self, x, te=None, dec_inp=None, y_mark=None):
 
         if self.decomposition:
             res_init, trend_init = self.decomp_module(x)
