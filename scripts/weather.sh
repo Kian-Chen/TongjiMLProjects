@@ -1,4 +1,4 @@
-for model_name in TTT4MHRS Transformer Informer Reformer Flowformer \
+for model_name in ModernTCN Transformer Informer Reformer Flowformer \
     Flashformer iTransformer iInformer iReformer iFlowformer iFlashformer
 do
 for batch_size in 128 256 512

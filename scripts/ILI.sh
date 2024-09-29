@@ -1,4 +1,4 @@
-for model_name in TTT4MHRS Transformer Informer Reformer Flowformer \
+for model_name in ModernTCN Transformer Informer Reformer Flowformer \
     Flashformer iTransformer iInformer iReformer iFlowformer iFlashformer
 do
 for batch_size in 32 64 128 256
@@ -15,7 +15,7 @@ python -u run.py \
     --model_id ILI \
     --model $model_name \
     --root_path ./datasets/illness/ \
-    --data_path illness.csv \
+    --data_path national_illness.csv \
     --log_dir ./logs/ \
     --log_name ILI.txt \
     --data custom \
