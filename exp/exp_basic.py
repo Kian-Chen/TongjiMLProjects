@@ -2,7 +2,7 @@ import os
 import torch
 from models import (ModernTCN, Flashformer, iFlashformer, Flowformer,
                     iFlowformer, Informer, iInformer, Reformer, iReformer,
-                    Transformer, iTransformer, DLinear, LSTM)
+                    Transformer, iTransformer, DLinear, LSTM, KANinLSTM)
 
 
 class Exp_Basic(object):
@@ -22,6 +22,7 @@ class Exp_Basic(object):
             'iTransformer': iTransformer,
             'DLinear': DLinear,
             'LSTM': LSTM,
+            'KANinLSTM': KANinLSTM,
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
