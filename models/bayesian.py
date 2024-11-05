@@ -1,4 +1,4 @@
-from .base_model import BaseModel
+from models.base_model import BaseModel
 
 class BayesianClassifier(BaseModel):
     def __init__(self, var_smoothing=1e-9):

@@ -1,4 +1,4 @@
-from .base_model import BaseModel
+from models.base_model import BaseModel
 import numpy as np
 
 class KNNClassifier(BaseModel):

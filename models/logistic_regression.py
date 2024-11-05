@@ -1,4 +1,4 @@
-from .base_model import BaseModel
+from models.base_model import BaseModel
 
 class LogisticRegression(BaseModel):
     def __init__(self, penalty='l2'):
