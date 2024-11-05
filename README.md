@@ -1,0 +1,1 @@
+# Lab2 Classification Task: CIFAR-10 Image Classification
