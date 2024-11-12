@@ -38,7 +38,6 @@ class Experiment:
     def _prepare_data(self):
         # 加载并处理数据
         data_loader = CIFAR10Loader()
-        X, y = data_loader.load_data()
         X_train, X_valid, X_test, y_train, y_valid, y_test = data_loader.prepare_datasets()
 
         if self.use_augmentation:
