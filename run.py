@@ -6,7 +6,7 @@ def parse_args():
 
     # 模型选择
     parser.add_argument('--model', type=str, choices=['bayesian', 'svc', 'knn', 'logistic_regression'],
-                        default='bayesian', help='选择模型：bayesian, svc, knn, logistic_regression')
+                        default='knn', help='选择模型：bayesian, svc, knn, logistic_regression')
 
     # 数据处理相关超参数
     parser.add_argument('--data_dir', type=str, default='data/raw', help='数据集路径')

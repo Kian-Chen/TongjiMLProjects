@@ -1,5 +1,7 @@
 from models.base_model import BaseModel
 import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+import torch
 
 class KNNClassifier(BaseModel):
     def __init__(self, k_neighbors=3):
@@ -8,17 +10,55 @@ class KNNClassifier(BaseModel):
 
     def train(self, X_train, y_train, learning_rate=None):
         # 训练逻辑，核心部分先pass
-        self.X_train = X_train
-        self.y_train = y_train
+        self.X_train = torch.tensor(X_train)
+        self.y_train = torch.tensor(y_train)
 
     def predict(self, X):
-        # 预测逻辑，核心部分先pass
-        pass
 
+        distances = KNNClassifier.compute_distances_no_loops(self.X_train, torch.tensor(X))
+        y_test_pred = KNNClassifier.predict_labels(distances, self.y_train, self.k_neighbors)
+        return y_test_pred
     def evaluate(self, X, y):
         # 评估逻辑，核心部分先pass
-        return 0.0
+        y_test_pred = self.predict(X)
+        num_samples = X.shape[0]
+        num_correct = (y == y_test_pred).sum().item()
+        accuracy = 100.0 * num_correct / num_samples
+        msg = (
+            f"Got {num_correct} / {num_samples} correct; "
+            f"accuracy is {accuracy:.2f}%"
+        )
+        # print(msg)
+        return accuracy
 
     def save(self, filepath):
         # 保存模型逻辑，核心部分先pass
         pass
+
+    @staticmethod
+    def compute_distances_no_loops(x_train: torch.Tensor, x_test: torch.Tensor):
+
+        num_train = x_train.shape[0]
+        num_test = x_test.shape[0]
+        dists = x_train.new_zeros(num_train, num_test)
+
+        dists.to(x_train.dtype)
+
+        x_train_flatten = x_train.view(num_train, -1)
+        x_test_flatten = x_test.view(num_test, -1)
+        train_sum_flatten = x_train_flatten.square().sum(dim=1).view(num_train, -1)
+        test_sum_flatten = x_test_flatten.square().sum(dim=1).view(-1, num_test)
+
+        dists = train_sum_flatten + test_sum_flatten - 2 * torch.mm(x_train_flatten, x_test_flatten.t())
+
+        return dists
+    @staticmethod
+    def predict_labels(dists: torch.Tensor, y_train: torch.Tensor, k: int = 1):
+
+        num_train, num_test = dists.shape
+        y_pred = torch.zeros(num_test, dtype=torch.int64)
+
+        values, index = torch.topk(dists, largest=False, dim=0, k=k)
+        y_pred = y_train[index].mode(dim=0).values
+
+        return y_pred
