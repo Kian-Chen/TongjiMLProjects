@@ -1,6 +1,5 @@
 import numpy as np
 from models.base_model import BaseModel
-from sklearn.metrics import accuracy_score
 
 class SVCClassifier(BaseModel):
     def __init__(self, kernel='linear', C=1.0, max_iter=1000, tol=1e-3, num_classes=10):
@@ -150,8 +149,19 @@ class SVCClassifier(BaseModel):
         评估模型
         """
         y_pred = self.predict(X)
-        accuracy = accuracy_score(y, y_pred)
-        return accuracy
+
+        TP = sum((y_pred == 1) & (y == 1)) 
+        FP = sum((y_pred == 1) & (y == 0))  
+        FN = sum((y_pred == 0) & (y == 1))  
+        TN = sum((y_pred == 0) & (y == 0)) 
+
+        accuracy = (TP + TN) / len(y)
+        precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+        recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+        f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        
+        return accuracy, precision, recall, f1_score
+
 
     def save(self, filepath):
         """ 
