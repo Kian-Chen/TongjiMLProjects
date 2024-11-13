@@ -148,20 +148,15 @@ class SVCClassifier(BaseModel):
         """ 
         评估模型
         """
+
         y_pred = self.predict(X)
 
-        TP = sum((y_pred == 1) & (y == 1)) 
-        FP = sum((y_pred == 1) & (y == 0))  
-        FN = sum((y_pred == 0) & (y == 1))  
-        TN = sum((y_pred == 0) & (y == 0)) 
+        correct_predictions = sum(y_pred == y)
+        total_samples = len(y)
 
-        accuracy = (TP + TN) / len(y)
-        precision = TP / (TP + FP) if (TP + FP) > 0 else 0
-        recall = TP / (TP + FN) if (TP + FN) > 0 else 0
-        f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        accuracy = correct_predictions / total_samples
         
-        return accuracy, precision, recall, f1_score
-
+        return accuracy
 
     def save(self, filepath):
         """ 
