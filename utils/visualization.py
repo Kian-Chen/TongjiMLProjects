@@ -43,6 +43,8 @@ def plot_tsne(X_pca, y, tsne_perplexity=30,
     :param tsne_perplexity: t-SNE 的 perplexity 参数
     :param tsne_iter: t-SNE 的迭代次数
     """
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
     # t-SNE 降维
     print("正在进行 t-SNE 降维...")
     tsne = TSNE(n_components=2, perplexity=tsne_perplexity, n_iter=tsne_iter, random_state=42)
