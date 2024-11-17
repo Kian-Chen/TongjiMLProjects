@@ -1,31 +1,44 @@
 from models import bayesian, svc, knn, logistic_regression
-from data_provider.cifar10_loader import CIFAR10Loader
+from data_provider.data_factory import data_provider
 from data_provider.data_augmentation import DataAugmentation
-from utils import metrics, visualization
+from utils.metrics import evaluate_classification
+from utils.visualization import plot_confusion_matrix
 import time
 import os
 
 class Experiment:
     def __init__(self, args):
         # 解析 args 并初始化相应的属性
+        self.args = args
         self.model_type = args.model
         self.learning_rate = args.learning_rate
+        self.pca_components = args.pca_components
         self.k_neighbors = args.k_neighbors
         self.svc_kernel = args.svc_kernel
         self.lr_penalty = args.lr_penalty
         self.bayesian_var_smoothing = args.bayesian_var_smoothing
         self.data_dir = args.data_dir
         self.save_dir = args.save_dir
+        self.checkpoints = args.checkpoints
+        log_dir = args.log_dir
+        self.log_file = os.path.join(log_dir, args.log_file)
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        if not os.path.exists(self.checkpoints):
+            os.makedirs(self.checkpoints)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        
         self.use_augmentation = args.augmentation
         self.random_state = args.random_state
 
-        # 初始化模型
         self.model = self._initialize_model()
+        self.data_loader = data_provider(self.args)
 
     def _initialize_model(self):
-        # 根据模型类型初始化相应的模型
         if self.model_type == 'bayesian':
-            return bayesian.BayesianClassifier(var_smoothing=self.bayesian_var_smoothing)
+            return bayesian.BayesianClassifier(var_smoothing=self.bayesian_var_smoothing,
+                                               n_components=self.pca_components)
         elif self.model_type == 'svc':
             return svc.SVCClassifier(kernel=self.svc_kernel)
         elif self.model_type == 'knn':
@@ -36,19 +49,17 @@ class Experiment:
             raise ValueError(f"Unsupported model type: {self.model_type}")
 
     def _prepare_data(self):
-        # 加载并处理数据
-        data_loader = CIFAR10Loader()
-        X_train, X_valid, X_test, y_train, y_valid, y_test = data_loader.prepare_datasets()
+        X_train, X_valid, X_test, y_train, y_valid, y_test = self.data_loader.prepare_datasets()
 
         if self.use_augmentation:
-            augmenter = DataAugmentation()
+            augmenter = DataAugmentation(self.args)
             X_train = augmenter.augment(X_train)
             X_valid = augmenter.augment(X_valid)
             X_test = augmenter.augment(X_test)
 
         return X_train, X_valid, X_test, y_train, y_valid, y_test
 
-    def run(self):
+    def run(self, setting):
         # 执行实验的主流程
         print(f"Starting experiment with {self.model_type} model")
         
@@ -63,21 +74,28 @@ class Experiment:
 
         # 评估模型
         print("Evaluating the model...")
-        train_accuracy = self.model.evaluate(X_train, y_train)
-        valid_accuracy = self.model.evaluate(X_valid, y_valid)
-        test_accuracy = self.model.evaluate(X_test, y_test)
+        train_pred = self.model.predict(X_train)
+        valid_pred = self.model.predict(X_valid)
+        test_pred = self.model.predict(X_test)
 
-        # 打印评估结果
-        print(f"Training accuracy: {train_accuracy:.4f}")
-        print(f"Validation accuracy: {valid_accuracy:.4f}")
-        print(f"Test accuracy: {test_accuracy:.4f}")
+        train_result = evaluate_classification(y_train, train_pred)
+        valid_result = evaluate_classification(y_valid, valid_pred)
+        test_result = evaluate_classification(y_test, test_pred)
 
-        # 保存结果
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
+        print(f"Training accuracy: {train_result['accuracy']:.4f}")
+        print(f"Validation accuracy: {valid_result['accuracy']:.4f}")
+        print(f"Test accuracy: {test_result['accuracy']:.4f}")
 
-        # 保存模型（如果需要）
-        self.model.save(os.path.join(self.save_dir, f"{self.model_type}_model.pth"))
+        if not os.path.exists(os.path.join(self.checkpoints, setting)):
+            os.makedirs(os.path.join(self.checkpoints, setting))
+        self.model.save(os.path.join(self.checkpoints, setting, "checkpoints.pth"))
 
-        # 可视化（如有需要）
-        visualization.plot_metrics(train_accuracy, valid_accuracy, test_accuracy)
+
+        with open(self.log_file, 'a') as f:
+            f.write(setting + "  \n")
+            res_str = f"Acc: {test_result['accuracy']:.4f}, Prec: {test_result['precision']:.4f}, Rec: {test_result['recall']:.4f}, F1: {test_result['f1']:.4f}"
+            f.write(res_str)
+            f.write('\n\n')
+
+        plot_confusion_matrix(cm=test_result['confusion_matrix'],
+                              save_path=os.path.join(self.save_dir, setting))

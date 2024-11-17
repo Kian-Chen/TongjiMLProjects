@@ -4,15 +4,38 @@ from experiments.experiment import Experiment
 def parse_args():
     parser = argparse.ArgumentParser(description='CIFAR-10 Classification Experiment using Traditional Machine Learning Models')
 
-    # 模型选择
+    # Basic Parameters
     parser.add_argument('--model', type=str, choices=['bayesian', 'svc', 'knn', 'logistic_regression'],
-                        default='knn', help='选择模型：bayesian, svc, knn, logistic_regression')
+                        default='bayesian', help='选择模型：bayesian, svc, knn, logistic_regression')
+    parser.add_argument('--data', type=str, choices=['mnist', 'cifar-10', 'cifar-100'],
+                        default='mnist', help='Choose dataset: mnist, cifar-100...')
 
-    # 数据处理相关超参数
-    parser.add_argument('--data_dir', type=str, default='data/raw', help='数据集路径')
-    parser.add_argument('--save_dir', type=str, default='experiments/results/', help='实验结果保存路径')
+    # Data Augmentation
+    parser.add_argument('--augmentation', type=bool, default=True, help='whether to use data augmentation or not')
+    parser.add_argument('--use_crop', type=bool, default=False, help='Whether to use random crop')
+    parser.add_argument('--use_scale', type=bool, default=True, help='Whether to use random scaling')
+    parser.add_argument('--use_rotation', type=bool, default=False, help='Whether to use random rotation')
+    parser.add_argument('--use_flip', type=bool, default=False, help='Whether to use random flip')
 
-    # 训练相关超参数
+    parser.add_argument('--crop_size', type=str, default=None, help='Crop size (height, width), e.g., "28,28"')
+    parser.add_argument('--scale_range', type=str, default="0.8,1.2", help='Scaling range, default is (0.8, 1.2)')
+    parser.add_argument('--rotation_range', type=str, default="-30,30", help='Rotation angle range, default is (-30, 30)')
+    parser.add_argument('--flip_prob', type=float, default=0.5, help='Probability of horizontal flip, default is 0.5')
+
+
+    # Path Parameters
+    parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='the directory of checkpoints')
+    parser.add_argument('--data_dir', type=str, default='./datasets/', help='the directory of dataset')
+    parser.add_argument('--save_dir', type=str, default='./results/', help='where to save the results')
+    parser.add_argument('--log_dir', type=str, default='./logs/', help='where to save the logs')
+    parser.add_argument('--log_file', type=str, default='log.txt', help='log file')
+
+    # PCA Parameters
+    parser.add_argument('--pca_components', type=int, default=21, help='number of PCA components to keep')
+
+
+    # Training Parameters
+    parser.add_argument('--itr', type=int, default=5, help='iterations')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='学习率')
 
     # 对于KNN模型的超参数
@@ -27,9 +50,6 @@ def parse_args():
     # 对于贝叶斯分类器的超参数
     parser.add_argument('--bayesian_var_smoothing', type=float, default=1e-9, help='贝叶斯分类器的方差平滑参数')
 
-    # 是否使用数据增强
-    parser.add_argument('--augmentation', action='store_true', help='是否使用数据增强')
-
     parser.add_argument('--random_state', type=int, default=42, help='随机种子')
 
     return parser.parse_args()
@@ -39,7 +59,17 @@ def main():
 
     experiment = Experiment(args)
 
-    experiment.run()
+    for ii in range(args.itr):
+        setting = '{}_{}_crop{}_scale{}_rotate{}_filp{}_Exp_{}'.format(
+            args.model,
+            args.data,
+            args.use_crop,
+            args.use_scale,
+            args.use_rotation,
+            args.use_flip,
+            ii
+        )
+        experiment.run(setting)
 
 if __name__ == "__main__":
     main()

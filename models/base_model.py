@@ -1,4 +1,7 @@
+import pickle
+import os
 import abc
+
 
 class BaseModel(abc.ABC):
     """
@@ -6,7 +9,7 @@ class BaseModel(abc.ABC):
     """
     def __init__(self):
         pass
-    
+
     @abc.abstractmethod
     def train(self, X_train, y_train, learning_rate):
         """
@@ -16,7 +19,7 @@ class BaseModel(abc.ABC):
         :param learning_rate: 学习率
         """
         pass
-    
+
     @abc.abstractmethod
     def predict(self, X):
         """
@@ -25,21 +28,26 @@ class BaseModel(abc.ABC):
         :return: 预测结果
         """
         pass
-    
-    @abc.abstractmethod
-    def evaluate(self, X, y):
+
+    def save(self, file_path):
         """
-        评估模型表现
-        :param X: 测试数据特征
-        :param y: 测试数据标签
-        :return: 模型准确率
+        保存模型到指定路径
+        :param file_path: 保存路径
         """
-        pass
-    
-    @abc.abstractmethod
-    def save(self, filepath):
+        with open(file_path, 'wb') as f:
+            pickle.dump(self, f)
+        print(f"模型已保存到 {file_path}")
+
+    @staticmethod
+    def load(file_path):
         """
-        保存模型
-        :param filepath: 模型保存路径
+        从指定路径加载模型
+        :param file_path: 加载路径
+        :return: 加载的模型对象
         """
-        pass
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"文件 {file_path} 不存在")
+        with open(file_path, 'rb') as f:
+            model = pickle.load(f)
+        print(f"模型已从 {file_path} 加载")
+        return model

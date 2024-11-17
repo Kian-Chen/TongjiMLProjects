@@ -1,19 +1,29 @@
 import matplotlib.pyplot as plt
+import os
+import seaborn as sns
 
-def plot_metrics(train_accuracy, valid_accuracy, test_accuracy):
+def plot_confusion_matrix(cm, labels=None, title="Confusion Matrix", 
+                          save_path='./results/', filename='confusion_matrix.pdf'):
     """
-    绘制模型准确率曲线
-    :param train_accuracy: 训练集准确率
-    :param valid_accuracy: 验证集准确率
-    :param test_accuracy: 测试集准确率
+    绘制混淆矩阵的热力图
+    :param cm: 混淆矩阵 (numpy array or list)
+    :param labels: 类别标签列表 (默认为 None)
+    :param title: 图的标题 (默认为 "Confusion Matrix")
     """
-    epochs = range(1, 2)  # 这里只是示例，可以扩展
-
-    plt.plot(epochs, [train_accuracy], label='Train Accuracy')
-    plt.plot(epochs, [valid_accuracy], label='Validation Accuracy')
-    plt.plot(epochs, [test_accuracy], label='Test Accuracy')
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.legend()
-    plt.show()
+    if labels is None:
+        labels = [str(i) for i in range(len(cm))]
+    
+    plt.figure(figsize=(8, 6))
+    
+    # 绘制热力图
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels)
+    
+    plt.title(title)
+    plt.xlabel("Predicted Labels")
+    plt.ylabel("True Labels")
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_path, filename))
+    plt.close()

@@ -1,6 +1,5 @@
 from models.base_model import BaseModel
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
 import torch
 
 class KNNClassifier(BaseModel):
@@ -18,22 +17,6 @@ class KNNClassifier(BaseModel):
         distances = KNNClassifier.compute_distances_no_loops(self.X_train, torch.tensor(X))
         y_test_pred = KNNClassifier.predict_labels(distances, self.y_train, self.k_neighbors)
         return y_test_pred
-    def evaluate(self, X, y):
-        # 评估逻辑，核心部分先pass
-        y_test_pred = self.predict(X)
-        num_samples = X.shape[0]
-        num_correct = (y == y_test_pred).sum().item()
-        accuracy = 100.0 * num_correct / num_samples
-        msg = (
-            f"Got {num_correct} / {num_samples} correct; "
-            f"accuracy is {accuracy:.2f}%"
-        )
-        # print(msg)
-        return accuracy
-
-    def save(self, filepath):
-        # 保存模型逻辑，核心部分先pass
-        pass
 
     @staticmethod
     def compute_distances_no_loops(x_train: torch.Tensor, x_test: torch.Tensor):

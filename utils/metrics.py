@@ -68,7 +68,7 @@ def evaluate_classification(y_true, y_pred, y_pred_proba=None):
         'accuracy': calculate_accuracy(y_true, y_pred),
         'precision': calculate_precision(y_true, y_pred),
         'recall': calculate_recall(y_true, y_pred),
-        'f1_score': calculate_f1(y_true, y_pred),
+        'f1': calculate_f1(y_true, y_pred),
         'confusion_matrix': calculate_confusion_matrix(y_true, y_pred)
     }
 

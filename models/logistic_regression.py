@@ -13,10 +13,3 @@ class LogisticRegression(BaseModel):
         # 预测逻辑，核心部分先pass
         pass
 
-    def evaluate(self, X, y):
-        # 评估逻辑，核心部分先pass
-        return 0.0
-
-    def save(self, filepath):
-        # 保存模型逻辑，核心部分先pass
-        pass
