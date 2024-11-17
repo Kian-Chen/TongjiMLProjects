@@ -11,12 +11,6 @@ class Experiment:
         # 解析 args 并初始化相应的属性
         self.args = args
         self.model_type = args.model
-        self.learning_rate = args.learning_rate
-        self.pca_components = args.pca_components
-        self.k_neighbors = args.k_neighbors
-        self.svc_kernel = args.svc_kernel
-        self.lr_penalty = args.lr_penalty
-        self.bayesian_var_smoothing = args.bayesian_var_smoothing
         self.data_dir = args.data_dir
         self.save_dir = args.save_dir
         self.checkpoints = args.checkpoints
@@ -36,17 +30,17 @@ class Experiment:
         self.data_loader = data_provider(self.args)
 
     def _initialize_model(self):
-        if self.model_type == 'bayesian':
-            return bayesian.BayesianClassifier(var_smoothing=self.bayesian_var_smoothing,
-                                               n_components=self.pca_components)
-        elif self.model_type == 'svc':
-            return svc.SVCClassifier(kernel=self.svc_kernel)
-        elif self.model_type == 'knn':
-            return knn.KNNClassifier(k_neighbors=self.k_neighbors)
-        elif self.model_type == 'logistic_regression':
-            return logistic_regression.LogisticRegression(penalty=self.lr_penalty)
-        else:
-            raise ValueError(f"Unsupported model type: {self.model_type}")
+        model_dict = {
+            'bayesian': bayesian.BayesianClassifier,
+            'svc': svc.SVCClassifier,
+            'knn': knn.KNNClassifier,
+            'logistic_regression': logistic_regression.LogisticRegression
+        }
+        try:
+            model = model_dict[self.model_type](self.args)
+        except KeyError:
+            raise ValueError(f"Invalid model type: {self.model_type}")
+        return model
 
     def _prepare_data(self):
         X_train, X_valid, X_test, y_train, y_valid, y_test = self.data_loader.prepare_datasets()
@@ -69,7 +63,7 @@ class Experiment:
         # 训练模型
         print("Training the model...")
         start_time = time.time()
-        self.model.train(X_train, y_train, learning_rate=self.learning_rate)
+        self.model.train(X_train, y_train)
         print(f"Training completed in {time.time() - start_time:.2f} seconds.")
 
         # 评估模型

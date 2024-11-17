@@ -31,18 +31,22 @@ def parse_args():
     parser.add_argument('--log_file', type=str, default='log.txt', help='log file')
 
     # PCA Parameters
+    parser.add_argument('--use_pca', type=bool, default=True, help='whether to use PCA or not')
     parser.add_argument('--pca_components', type=int, default=21, help='number of PCA components to keep')
 
 
     # Training Parameters
     parser.add_argument('--itr', type=int, default=5, help='iterations')
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='学习率')
 
     # 对于KNN模型的超参数
     parser.add_argument('--k_neighbors', type=int, default=3, help='KNN中邻居的数量')
 
     # 对于SVC模型的超参数
     parser.add_argument('--svc_kernel', type=str, choices=['linear', 'poly', 'rbf'], default='linear', help='SVM核函数类型')
+    parser.add_argument('--svc_C', type=float, default=1.0, help='SVM惩罚参数C')
+    parser.add_argument('--svc_max_iter', type=int, default=1000, help='SVM最大迭代次数')
+    parser.add_argument('--svc_tol', type=float, default=1e-3, help='SVM容忍度')
+
 
     # 对于逻辑斯蒂回归的超参数
     parser.add_argument('--lr_penalty', type=str, choices=['l2', 'l1'], default='l2', help='逻辑斯蒂回归的惩罚项')
@@ -60,9 +64,11 @@ def main():
     experiment = Experiment(args)
 
     for ii in range(args.itr):
-        setting = '{}_{}_crop{}_scale{}_rotate{}_filp{}_Exp_{}'.format(
+        setting = '{}_{}_pca{}{}_crop{}_scale{}_rotate{}_filp{}_Exp_{}'.format(
             args.model,
             args.data,
+            args.use_pca,
+            args.pca_components,
             args.use_crop,
             args.use_scale,
             args.use_rotation,

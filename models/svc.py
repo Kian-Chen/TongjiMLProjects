@@ -2,13 +2,12 @@ import numpy as np
 from models.base_model import BaseModel
 
 class SVCClassifier(BaseModel):
-    def __init__(self, kernel='linear', C=1.0, max_iter=1000, tol=1e-3, num_classes=10):
-        super().__init__()
-        self.kernel = kernel
-        self.C = C
-        self.max_iter = max_iter
-        self.tol = tol
-        self.num_classes = num_classes
+    def __init__(self, args):
+        super().__init__(args=args)
+        self.kernel = args.svc_kernel
+        self.C = args.svc_C
+        self.max_iter = args.svc_max_iter
+        self.tol = args.svc_tol
         self.alphas = None
         self.support_vectors = None
         self.support_vector_labels = None
@@ -43,6 +42,7 @@ class SVCClassifier(BaseModel):
         """ 
         使用One-vs-Rest方法训练多分类SVM
         """
+        X_train = self._preprocess_images(X_train, flag='train')
         m, n = X_train.shape
         y_train = np.array(y_train)
 
@@ -50,7 +50,7 @@ class SVCClassifier(BaseModel):
         self.Ws = []
         self.bs = []
 
-        for c in range(self.num_classes):
+        for c in range(m):
             y_binary = np.where(y_train == c, 1, -1)
 
             alpha = np.zeros(m)
@@ -138,6 +138,7 @@ class SVCClassifier(BaseModel):
         """ 
         预测 
         """
+        X = self._preprocess_images(X, flag='test')
         if self.Ws is None:
             raise ValueError("模型未被训练")
 

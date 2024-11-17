@@ -1,22 +1,26 @@
 import pickle
 import os
 import abc
+from sklearn.decomposition import PCA
 
 
 class BaseModel(abc.ABC):
     """
     所有模型的基类，提供通用的训练、预测接口
     """
-    def __init__(self):
-        pass
+    def __init__(self, args):
+        self.use_pca = args.use_pca
+        self.n_components = args.pca_components
+        if args.use_pca:
+            self.pca = PCA(n_components=self.n_components)
+
 
     @abc.abstractmethod
-    def train(self, X_train, y_train, learning_rate):
+    def train(self, X_train, y_train):
         """
         训练模型
         :param X_train: 训练数据特征
         :param y_train: 训练数据标签
-        :param learning_rate: 学习率
         """
         pass
 
@@ -29,6 +33,19 @@ class BaseModel(abc.ABC):
         """
         pass
 
+    def _preprocess_images(self, X, flag='train'):
+        """
+        将图像数据 (N, H, W, C) 转换为 (N, H*W*C)
+        """
+        N, H, W, C = X.shape
+        X_flat = X.reshape(N, -1)
+        if self.use_pca:
+            if flag == 'train':
+                X_flat = self.pca.fit_transform(X_flat)
+            else:
+                X_flat = self.pca.transform(X_flat)
+        return X_flat
+
     def save(self, file_path):
         """
         保存模型到指定路径
@@ -38,7 +55,6 @@ class BaseModel(abc.ABC):
             pickle.dump(self, f)
         print(f"模型已保存到 {file_path}")
 
-    @staticmethod
     def load(file_path):
         """
         从指定路径加载模型
