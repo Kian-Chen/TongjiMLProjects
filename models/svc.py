@@ -46,11 +46,14 @@ class SVCClassifier(BaseModel):
         m, n = X_train.shape
         y_train = np.array(y_train)
 
+        unique_classes = np.unique(y_train)
+        num_classs = len(unique_classes)
+
         self.alphas = []
         self.Ws = []
         self.bs = []
 
-        for c in range(m):
+        for c in range(num_classs):
             y_binary = np.where(y_train == c, 1, -1)
 
             alpha = np.zeros(m)
