@@ -6,9 +6,9 @@ def parse_args():
 
     # Basic Parameters
     parser.add_argument('--model', type=str, choices=['bayesian', 'svc', 'knn', 'logistic_regression'],
-                        default='bayesian', help='选择模型：bayesian, svc, knn, logistic_regression')
+                        default='logistic_regression', help='选择模型：bayesian, svc, knn, logistic_regression')
     parser.add_argument('--data', type=str, choices=['mnist', 'cifar-10', 'cifar-100'],
-                        default='mnist', help='Choose dataset: mnist, cifar-100...')
+                        default='cifar-10', help='Choose dataset: mnist, cifar-100...')
 
     # Data Augmentation
     parser.add_argument('--augmentation', type=bool, default=True, help='whether to use data augmentation or not')
@@ -50,7 +50,10 @@ def parse_args():
 
     # 对于逻辑斯蒂回归的超参数
     parser.add_argument('--lr_penalty', type=str, choices=['l2', 'l1'], default='l2', help='逻辑斯蒂回归的惩罚项')
-
+    parser.add_argument('--learning_rate', type=float, default=0.01, help='学习率')
+    parser.add_argument('--num_epochs', type=int, default=10, help='训练轮数')
+    parser.add_argument('--batch_size', type=int, default=32, help='批量大小')
+    
     # 对于贝叶斯分类器的超参数
     parser.add_argument('--bayesian_var_smoothing', type=float, default=1e-9, help='贝叶斯分类器的方差平滑参数')
 
